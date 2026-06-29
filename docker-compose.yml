@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  # AEGIS API Server
+  aegis-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aegis-api
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - LOG_LEVEL=INFO
+      - SAFE_MODE=true
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - REPORT_OUTPUT_DIR=/opt/aegis/reports
+      - CHROMADB_PERSIST_DIR=/opt/aegis/data/chromadb
+    volumes:
+      - aegis-reports:/opt/aegis/reports
+      - aegis-data:/opt/aegis/data
+      - aegis-logs:/opt/aegis/logs
+    depends_on:
+      - ollama
+    networks:
+      - aegis-network
+    restart: unless-stopped
+
+  # Ollama LLM Server
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aegis-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    networks:
+      - aegis-network
+    restart: unless-stopped
+    # GPU support (uncomment for NVIDIA GPU)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # Web UI (simple static file server)
+  aegis-ui:
+    image: nginx:alpine
+    container_name: aegis-ui
+    ports:
+      - "3000:80"
+    volumes:
+      - ./ui:/usr/share/nginx/html:ro
+    networks:
+      - aegis-network
+    restart: unless-stopped
+
+volumes:
+  aegis-reports:
+  aegis-data:
+  aegis-logs:
+  ollama-models:
+
+networks:
+  aegis-network:
+    driver: bridge

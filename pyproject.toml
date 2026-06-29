@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aegis"
+version = "1.0.0"
+description = "AEGIS — AI-Augmented Penetration Testing Assistant"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "AEGIS Team"}
+]
+keywords = ["penetration-testing", "ai", "security", "autonomous-agent"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Information Technology",
+    "Topic :: Security",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.scripts]
+aegis = "aegis.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["aegis*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

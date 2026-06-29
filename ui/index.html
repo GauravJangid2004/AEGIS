@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AEGIS — AI-Augmented Penetration Testing Assistant. Autonomous AI-driven security testing framework.">
+    <title>AEGIS | AI Penetration Testing Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ui/styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- ─── Sidebar ─── -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🛡️</div>
+                <h1 class="logo-text">AEGIS</h1>
+                <span class="logo-badge">v1.0</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="new-scan" onclick="showPage('new-scan')">
+                    <span class="nav-icon">🎯</span>
+                    <span>New Scan</span>
+                </a>
+                <a href="#" class="nav-item" data-page="live" onclick="showPage('live')">
+                    <span class="nav-icon">⚡</span>
+                    <span>Live Attack</span>
+                </a>
+                <a href="#" class="nav-item" data-page="reports" onclick="showPage('reports')">
+                    <span class="nav-icon">📄</span>
+                    <span>Reports</span>
+                </a>
+                <a href="#" class="nav-item" data-page="models" onclick="showPage('models')">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI Models</span>
+                </a>
+                <a href="#" class="nav-item" data-page="settings" onclick="showPage('settings')">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot" id="api-status-dot"></span>
+                    <span id="api-status-text">Checking API...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ─── Main Content ─── -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <section class="page active" id="page-dashboard">
+                <header class="page-header">
+                    <h2>Dashboard</h2>
+                    <p class="page-subtitle">System overview and recent activity</p>
+                </header>
+                <div class="stats-grid">
+                    <div class="stat-card stat-active">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-active">0</span>
+                            <span class="stat-label">Active Scans</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-completed">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-completed">0</span>
+                            <span class="stat-label">Completed</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-findings">
+                        <div class="stat-icon">🔍</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-findings">0</span>
+                            <span class="stat-label">Findings</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-critical">
+                        <div class="stat-icon">🚨</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-critical">0</span>
+                            <span class="stat-label">Critical</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3 class="card-title">Recent Scans</h3>
+                        <div id="recent-scans-list" class="scan-list">
+                            <div class="empty-state">No scans yet. Start your first scan!</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title">Risk Distribution</h3>
+                        <div id="risk-chart" class="risk-chart">
+                            <div class="risk-bar-container">
+                                <div class="risk-bar">
+                                    <div class="risk-segment critical" style="width: 0%" id="bar-critical"></div>
+                                    <div class="risk-segment high" style="width: 0%" id="bar-high"></div>
+                                    <div class="risk-segment medium" style="width: 0%" id="bar-medium"></div>
+                                    <div class="risk-segment low" style="width: 0%" id="bar-low"></div>
+                                    <div class="risk-segment info" style="width: 0%" id="bar-info"></div>
+                                </div>
+                                <div class="risk-legend">
+                                    <span class="legend-item"><span class="legend-dot critical"></span>Critical</span>
+                                    <span class="legend-item"><span class="legend-dot high"></span>High</span>
+                                    <span class="legend-item"><span class="legend-dot medium"></span>Medium</span>
+                                    <span class="legend-item"><span class="legend-dot low"></span>Low</span>
+                                    <span class="legend-item"><span class="legend-dot info"></span>Info</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- New Scan Page -->
+            <section class="page" id="page-new-scan">
+                <header class="page-header">
+                    <h2>New Penetration Test</h2>
+                    <p class="page-subtitle">Configure and launch an autonomous pentest</p>
+                </header>
+                <div class="card scan-config-card">
+                    <form id="scan-form" onsubmit="startScan(event)">
+                        <div class="form-group">
+                            <label for="scan-target">Target</label>
+                            <input type="text" id="scan-target" placeholder="192.168.1.100 or example.com" required>
+                            <span class="form-hint">IP address, domain name, or URL</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="scan-scope">Scope</label>
+                                <select id="scan-scope">
+                                    <option value="full">Full (All Modules)</option>
+                                    <option value="web">Web Application</option>
+                                    <option value="network">Network Only</option>
+                                    <option value="recon">Recon Only</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="scan-depth">Depth</label>
+                                <select id="scan-depth">
+                                    <option value="quick">Quick</option>
+                                    <option value="standard" selected>Standard</option>
+                                    <option value="deep">Deep</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="scan-iterations">Max Iterations</label>
+                                <input type="number" id="scan-iterations" value="20" min="1" max="100">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label interactive-toggle">
+                                <input type="checkbox" id="scan-interactive" checked>
+                                <span>🤖 Interactive Mode</span>
+                                <span class="form-hint">AI suggests next steps — you confirm before each action runs</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="scan-consent" required>
+                                <span>I have written authorization to test this target</span>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-launch" id="btn-start-scan">
+                            <span class="btn-icon">🚀</span>
+                            Launch Autonomous Pentest
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Live Attack Page -->
+            <section class="page" id="page-live">
+                <header class="page-header">
+                    <h2>Live Attack Feed</h2>
+                    <p class="page-subtitle">Real-time autonomous pentest activity</p>
+                </header>
+                <div class="live-header">
+                    <div class="live-info">
+                        <span class="live-badge" id="live-badge">IDLE</span>
+                        <span id="live-target">No active scan</span>
+                        <label class="auto-mode-toggle" id="auto-mode-toggle" style="display:none">
+                            <input type="checkbox" id="auto-mode-checkbox" onchange="toggleAutoMode()">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Auto Mode</span>
+                        </label>
+                    </div>
+                    <button class="btn btn-danger" id="btn-stop-scan" onclick="stopScan()" disabled>
+                        ⏹ Stop Scan
+                    </button>
+                </div>
+
+                <!-- Suggestion Confirmation Panel -->
+                <div class="suggestion-panel" id="suggestion-panel">
+                    <!-- Dynamically populated by app.js -->
+                </div>
+
+                <div class="live-grid">
+                    <div class="card terminal-card">
+                        <h3 class="card-title">AI Decision Feed</h3>
+                        <div class="terminal" id="ai-terminal">
+                            <div class="terminal-line system">
+                                AEGIS AI Agent v1.0 — Waiting for scan...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card findings-card">
+                        <h3 class="card-title">Live Findings</h3>
+                        <div id="live-findings" class="findings-list">
+                            <div class="empty-state">Findings will appear here during a scan</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Page -->
+            <section class="page" id="page-reports">
+                <header class="page-header">
+                    <h2>Reports</h2>
+                    <p class="page-subtitle">Generated penetration test reports</p>
+                </header>
+                <div id="reports-list" class="reports-grid">
+                    <div class="empty-state">No reports generated yet</div>
+                </div>
+            </section>
+
+            <!-- Models Page -->
+            <section class="page" id="page-models">
+                <header class="page-header">
+                    <h2>AI Models</h2>
+                    <p class="page-subtitle">Manage AI models used by AEGIS</p>
+                </header>
+                <div class="models-grid" id="models-grid">
+                    <div class="card model-card">
+                        <h3>🧠 Reasoning Model</h3>
+                        <p class="model-name" id="model-reasoning">llama3</p>
+                        <span class="model-task">Attack planning & decision making</span>
+                    </div>
+                    <div class="card model-card">
+                        <h3>💻 Code Analysis Model</h3>
+                        <p class="model-name" id="model-code">deepseek-coder</p>
+                        <span class="model-task">Exploit analysis & code review</span>
+                    </div>
+                    <div class="card model-card">
+                        <h3>📝 Report Model</h3>
+                        <p class="model-name" id="model-report">mistral</p>
+                        <span class="model-task">Professional report generation</span>
+                    </div>
+                    <div class="card model-card">
+                        <h3>🔍 Vulnerability Model</h3>
+                        <p class="model-name" id="model-vuln">llama3</p>
+                        <span class="model-task">CVE analysis & risk assessment</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Available Models (Ollama)</h3>
+                    <div id="available-models-list">
+                        <button class="btn btn-secondary" onclick="loadModels()">🔄 Refresh Models</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Page -->
+            <section class="page" id="page-settings">
+                <header class="page-header">
+                    <h2>Settings</h2>
+                    <p class="page-subtitle">Configure AEGIS parameters</p>
+                </header>
+                <div class="card">
+                    <h3 class="card-title">API Configuration</h3>
+                    <div class="form-group">
+                        <label>API Base URL</label>
+                        <input type="text" id="setting-api-url" value="http://localhost:8000" onchange="updateApiUrl(this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Ollama URL</label>
+                        <input type="text" id="setting-ollama-url" value="http://localhost:11434" disabled>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="/ui/app.js"></script>
+</body>
+</html>
